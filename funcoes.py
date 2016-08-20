@@ -79,21 +79,22 @@ def get_info(diretorio, arquivo):
     }
     return retorno
 
-# a = os.getcwd()
-# b = os.listdir(a)
-# for i in b:
-#     infos = get_info(a, i)
-#     print infos["nome"]
-#     print infos["uid"]
-#     print infos["gid"]
-#     print infos["data_ac"]
-#     print infos["hora_ac"]
-#     print infos["data_mo"]
-#     print infos["hora_mo"]
-#     print infos["data_cr"]
-#     print infos["hora_cr"]
-#     print infos["user_p"]
-#     print infos["group_p"]
-#     print infos["other_p"]
-#     print infos["tamanho"]
-#     print
+a = os.getcwd()
+b = os.listdir(a)
+for i in b:
+    infos = get_info(a, i)
+    print infos["nome"]
+    print infos["uid"]
+    print infos["gid"]
+    print infos["data_ac"]
+    print infos["hora_ac"]
+    print infos["data_mo"]
+    print infos["hora_mo"]
+    print infos["data_cr"]
+    print infos["hora_cr"]
+    print infos["user_p"]
+    print infos["group_p"]
+    print infos["other_p"]
+    print infos["tamanho"]
+    print
+
