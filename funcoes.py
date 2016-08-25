@@ -3,6 +3,14 @@ import os
 import datetime
 
 
+def intoView(path):
+    lista = os.listdir(path)
+    retorno = {}
+    for i in lista:
+        infos = get_info(path, i)
+        retorno.
+
+
 def get_time(time):
     date = datetime.datetime.fromtimestamp(time)
     d = date.day
@@ -78,23 +86,3 @@ def get_info(diretorio, arquivo):
         "tamanho": tamanho
     }
     return retorno
-
-a = os.getcwd()
-b = os.listdir(a)
-for i in b:
-    infos = get_info(a, i)
-    print infos["nome"]
-    print infos["uid"]
-    print infos["gid"]
-    print infos["data_ac"]
-    print infos["hora_ac"]
-    print infos["data_mo"]
-    print infos["hora_mo"]
-    print infos["data_cr"]
-    print infos["hora_cr"]
-    print infos["user_p"]
-    print infos["group_p"]
-    print infos["other_p"]
-    print infos["tamanho"]
-    print
-
