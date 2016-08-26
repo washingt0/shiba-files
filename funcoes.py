@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import datetime
-
+import shutil
 
 def get_time(time):
     date = datetime.datetime.fromtimestamp(time)
@@ -59,12 +59,13 @@ def get_info(diretorio):
     ac = get_time(info.st_atime)
     mo = get_time(info.st_mtime)
     cr = get_time(info.st_ctime)
-    tamanho = format_size(info.st_size)
     permissions = get_permissions(oct(info.st_mode)[-3:])
     if os.path.isfile(diretorio):
         tipo = "Arquivo"
+        tamanho = format_size(info.st_size)
     else:
         tipo = "Pasta"
+        tamanho = format_size(get_size_folder(diretorio))
     arquivo = ''
     url = diretorio.split('/')
     for i in url:
@@ -115,3 +116,34 @@ def get_list(diretorio):
 
 def existe(diretorio):
     return os.path.exists(diretorio)
+
+
+def get_size_folder(diretorio):
+    start_path = diretorio
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            try:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+            except:
+                pass
+    return total_size
+
+def colar(caminho):
+    nome = ''
+    if os.path.isfile(caminho):
+        shutil.copy(caminho, get_local_path()+"/")
+    else:
+        lnome = caminho.split("/")
+        for i in lnome:
+            nome = i
+        shutil.copytree(caminho, get_local_path()+"/"+nome)
+    return 0
+
+def excluir(caminho):
+    if os.path.isfile(caminho):
+        os.remove(caminho)
+    else:
+        shutil.rmtree(caminho)
+    return 0
