@@ -3,14 +3,6 @@ import os
 import datetime
 
 
-def intoView(path):
-    lista = os.listdir(path)
-    retorno = {}
-    for i in lista:
-        infos = get_info(path, i)
-        retorno.
-
-
 def get_time(time):
     date = datetime.datetime.fromtimestamp(time)
     d = date.day
@@ -62,14 +54,21 @@ def format_size(tamanho):
     return retorno
 
 
-def get_info(diretorio, arquivo):
-    path = diretorio + "/" + str(arquivo)
-    info = os.stat(path)
+def get_info(diretorio):
+    info = os.stat(diretorio)
     ac = get_time(info.st_atime)
     mo = get_time(info.st_mtime)
     cr = get_time(info.st_ctime)
     tamanho = format_size(info.st_size)
     permissions = get_permissions(oct(info.st_mode)[-3:])
+    if os.path.isfile(diretorio):
+        tipo = "Arquivo"
+    else:
+        tipo = "Pasta"
+    arquivo = ''
+    url = diretorio.split('/')
+    for i in url:
+        arquivo = i
     retorno = {
         "nome": arquivo,
         "uid": info.st_uid,
@@ -83,6 +82,28 @@ def get_info(diretorio, arquivo):
         "user_p": permissions[0],
         "group_p": permissions[1],
         "other_p": permissions[2],
-        "tamanho": tamanho
+        "tamanho": tamanho,
+        "tipo": tipo
     }
     return retorno
+
+
+def get_local_path():
+    return os.getcwd()
+
+
+def ir_acima():
+    os.chdir("..")
+    return get_local_path()
+
+
+def get_list(diretorio):
+    if os.path.exists(diretorio):
+        lista = os.listdir(diretorio)
+        return lista
+    else:
+        return -1
+
+
+def existe(diretorio):
+    return os.path.exists(diretorio)
