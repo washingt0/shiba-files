@@ -97,6 +97,14 @@ def ir_acima():
     return get_local_path()
 
 
+def ir_para(diretorio):
+    if os.path.isfile(diretorio):
+        pass
+    else:
+        os.chdir(diretorio)
+    return get_local_path()
+
+
 def get_list(diretorio):
     if os.path.exists(diretorio):
         lista = os.listdir(diretorio)

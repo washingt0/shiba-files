@@ -6,6 +6,7 @@ import funcoes
 class MainWindow:
     def __init__(self):
         self.path = funcoes.get_local_path()
+        self.old_path = []
         self.files = {}
         self.window = gtk.Dialog()
         self.window.set_title("Shiba Files")
@@ -15,9 +16,25 @@ class MainWindow:
 
         self.fixed = gtk.Fixed()
 
+        self.scrolled_window = gtk.ScrolledWindow()
+        self.scrolled_window.set_size_request(600, 500)
+        self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+
+
+        self.list = gtk.ListStore(str, str, str, str, str)
+        self.files_treeview = gtk.TreeView(self.list)
+        self.files_treeview.set_model(self.list)
+
+
         self.path_bar = gtk.Entry()
         self.path_bar.set_size_request(530, 40)
         self.path_bar.set_text(self.path)
+
+        self.list = gtk.ListStore(str, str, str, str, str)
+        self.update_view()
+        self.files_treeview = gtk.TreeView()
+        self.files_treeview.set_model(self.list)
+
         self.fixed.put(self.path_bar, 190, 15)
 
         self.button_acima = gtk.Button("Acima")
@@ -28,6 +45,7 @@ class MainWindow:
         self.button_recortar = gtk.Button("Recortar")
         self.button_excluir = gtk.Button("Excluir")
         self.button_propriedades = gtk.Button("Propriedades")
+        self.button_symlink = gtk.Button("Criar Link")
 
         self.button_acima.set_size_request(80, 40)
         self.button_voltar.set_size_request(80, 40)
@@ -37,6 +55,11 @@ class MainWindow:
         self.button_recortar.set_size_request(165, 35)
         self.button_excluir.set_size_request(165, 35)
         self.button_propriedades.set_size_request(165, 35)
+        self.button_symlink.set_size_request(165, 35)
+
+        self.button_acima.connect("clicked", self.action_up)
+        self.button_voltar.connect("clicked", self.action_back)
+        self.button_ir.connect("clicked", self.action_go)
 
         self.fixed.put(self.button_voltar, 15, 15)
         self.fixed.put(self.button_acima, 100, 15)
@@ -46,14 +69,11 @@ class MainWindow:
         self.fixed.put(self.button_recortar, 15, 160)
         self.fixed.put(self.button_excluir, 15, 200)
         self.fixed.put(self.button_propriedades, 15, 240)
-
-        self.scrolled_window = gtk.ScrolledWindow()
-        self.scrolled_window.set_size_request(600, 500)
+        self.fixed.put(self.button_symlink, 15, 280)
         self.fixed.put(self.scrolled_window, 190, 80)
 
-        self.list = gtk.ListStore(str, str, str, str, str)
-        self.files_treeview = gtk.TreeView()
-        self.files_treeview.set_model(self.list)
+
+
 
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Nome", renderer, text=0)
@@ -72,11 +92,11 @@ class MainWindow:
         column.set_sort_column_id(4)
         self.files_treeview.append_column(column)
 
-        self.update_view()
-
         self.files_treeview.show()
         self.scrolled_window.add(self.files_treeview)
 
+        self.selected = self.files_treeview.get_selection()
+        self.selected.set_mode(gtk.SELECTION_SINGLE)
 
         self.window.vbox.pack_start(self.fixed)
         self.window.show_all()
@@ -91,14 +111,36 @@ class MainWindow:
         gtk.main()
 
     def update_view(self):
+        self.list.clear()
+        self.files.clear()
         local = funcoes.get_local_path()
         lista = funcoes.get_list(local)
+        self.path_bar.set_text(local)
         for i in lista:
             if funcoes.existe(local + "/" + i):
                 self.files[i] = funcoes.get_info(local + "/" + i)
         for j, i in self.files.iteritems():
             self.list.append([i["nome"], i["tamanho"], i["user_p"] + i["group_p"] + i["other_p"], i["uid"], i["tipo"]])
 
+
+    def action_up(self, widget):
+        self.old_path.append(self.path)
+        self.path = funcoes.ir_acima()
+        self.update_view()
+
+    def action_back(self, widget):
+        try:
+            self.path = self.old_path.pop()
+            funcoes.ir_para(self.path)
+            self.update_view()
+        except:
+            pass
+
+    def action_go(self, widget):
+        self.old_path.append(self.path)
+        self.path = self.path_bar.get_text()
+        funcoes.ir_para(self.path)
+        self.update_view()
 
 if __name__ == "__main__":
     main = MainWindow()
