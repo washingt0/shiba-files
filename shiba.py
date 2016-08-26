@@ -93,6 +93,7 @@ class MainWindow:
         self.button_colar.connect("clicked", self.action_paste)
         self.button_recortar.connect("clicked", self.action_crop)
         self.button_excluir.connect("clicked", self.action_delete)
+        self.button_propriedades.connect("clicked", self.action_properties)
 
         self.fixed.put(self.scrolled_window, 190, 80)
         self.fixed.put(self.button_voltar, 15, 15)
@@ -113,18 +114,12 @@ class MainWindow:
 
         self.selected = self.files_treeview.get_selection()
         self.selected.set_mode(gtk.SELECTION_SINGLE)
+        self.selected.select_path(0)
 
         self.window.vbox.pack_start(self.fixed)
         self.window.show_all()
         self.window.connect("destroy", self.destroy)
 
-    @staticmethod
-    def destroy(self):
-        gtk.main_quit(self)
-
-    @staticmethod
-    def main():
-        gtk.main()
 
     def update_view(self, oculto):
         self.list.clear()
@@ -152,7 +147,7 @@ class MainWindow:
             self.path = self.old_path.pop()
             funcoes.ir_para(self.path)
             self.update_view(self.oculto)
-        except:
+        except ValueError:
             pass
 
     def action_go(self, widget):
@@ -173,8 +168,11 @@ class MainWindow:
         return 0
 
     def get_selected(self):
-        selec = self.selected.get_selected()
-        selecionado = self.list.get_value(selec[1], 0)
+        try:
+            selec = self.selected.get_selected()
+            selecionado = self.list.get_value(selec[1], 0)
+        except ValueError:
+            selecionado = None
         return selecionado
 
     def action_copy(self, widget):
@@ -196,6 +194,113 @@ class MainWindow:
         funcoes.excluir(funcoes.get_local_path() + "/" + self.get_selected())
         self.update_view(self.oculto)
 
+    def action_properties(self, widget):
+        selecionado = self.get_selected()
+        info = funcoes.get_info(funcoes.get_local_path()+"/"+selecionado)
+        if selecionado is None:
+            pass
+        else:
+            win = gtk.Dialog()
+            win.set_title("Propriedades")
+            win.set_size_request(350, 400)
+            win.set_resizable(False)
+
+            fix = gtk.Fixed()
+            tnome = gtk.TextBuffer()
+            tnome.set_text("Nome: ")
+            ttamanho = gtk.TextBuffer()
+            ttamanho.set_text("Tamanho: ")
+            tuserid = gtk.TextBuffer()
+            tuserid.set_text("UID: ")
+            tgroupid = gtk.TextBuffer()
+            tgroupid.set_text("GID: ")
+            tpermissoes = gtk.TextBuffer()
+            tpermissoes.set_text("Permissoes: ")
+            tdtcriacao = gtk.TextBuffer()
+            tdtcriacao.set_text("Data de Criacao: ")
+            tdtacesso = gtk.TextBuffer()
+            tdtacesso.set_text("Data de Acesso: ")
+            tdtmod = gtk.TextBuffer()
+            tdtmod.set_text("Data de Modificacao: ")
+
+            vnome = gtk.TextView(tnome)
+            vnome.set_editable(False)
+            vtamanho = gtk.TextView(ttamanho)
+            vtamanho.set_editable(False)
+            vuserid = gtk.TextView(tuserid)
+            vuserid.set_editable(False)
+            vgroupid = gtk.TextView(tgroupid)
+            vgroupid.set_editable(False)
+            vpermissoes = gtk.TextView(tpermissoes)
+            vpermissoes.set_editable(False)
+            vdtcriacao = gtk.TextView(tdtcriacao)
+            vdtcriacao.set_editable(False)
+            vdtacesso = gtk.TextView(tdtacesso)
+            vdtacesso.set_editable(False)
+            vdtmod = gtk.TextView(tdtmod)
+            vdtmod.set_editable(False)
+
+            cnome = gtk.TextBuffer()
+            cnome.set_text(info["nome"])
+            ctamanho = gtk.TextBuffer()
+            ctamanho.set_text(info["tamanho"])
+            cuserid = gtk.TextBuffer()
+            cuserid.set_text(str(info["uid"]))
+            cgroupid = gtk.TextBuffer()
+            cgroupid.set_text(str(info["gid"]))
+            cpermissoes = gtk.TextBuffer()
+            cpermissoes.set_text(info["user_p"]+info["group_p"]+info["other_p"])
+            cdtcriacao = gtk.TextBuffer()
+            cdtcriacao.set_text(info["data_cr"]+"  "+info["hora_cr"])
+            cdtacesso = gtk.TextBuffer()
+            cdtacesso.set_text(info["data_ac"]+"  "+info["hora_ac"])
+            cdtmod = gtk.TextBuffer()
+            cdtmod.set_text(info["data_mo"]+"  "+info["hora_mo"])
+
+            vcnome = gtk.TextView(cnome)
+            vcnome.set_editable(False)
+            vctamanho = gtk.TextView(ctamanho)
+            vctamanho.set_editable(False)
+            vcuserid = gtk.TextView(cuserid)
+            vcuserid.set_editable(False)
+            vcgroupid = gtk.TextView(cgroupid)
+            vcgroupid.set_editable(False)
+            vcpermissoes = gtk.TextView(cpermissoes)
+            vcpermissoes.set_editable(False)
+            vcdtcriacao = gtk.TextView(cdtcriacao)
+            vcdtcriacao.set_editable(False)
+            vcdtacesso = gtk.TextView(cdtacesso)
+            vcdtacesso.set_editable(False)
+            vcdtmod = gtk.TextView(cdtmod)
+            vcdtmod.set_editable(False)
+
+            fix.put(vnome, 30, 20)
+            fix.put(vtamanho, 30, 50)
+            fix.put(vuserid, 30, 80)
+            fix.put(vgroupid, 30, 110)
+            fix.put(vpermissoes, 30, 140)
+            fix.put(vdtcriacao, 30, 170)
+            fix.put(vdtmod, 30, 200)
+            fix.put(vdtacesso, 30, 230)
+            fix.put(vcnome, 180, 20)
+            fix.put(vctamanho, 180, 50)
+            fix.put(vcuserid, 180, 80)
+            fix.put(vcgroupid, 180, 110)
+            fix.put(vcpermissoes, 180, 140)
+            fix.put(vcdtcriacao, 180, 170)
+            fix.put(vcdtmod, 180, 200)
+            fix.put(vcdtacesso, 180, 230)
+            win.vbox.pack_start(fix)
+            win.show_all()
+
+
+    @staticmethod
+    def destroy(self):
+        gtk.main_quit(self)
+
+    @staticmethod
+    def main():
+        gtk.main()
 
 
 if __name__ == "__main__":
