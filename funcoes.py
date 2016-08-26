@@ -54,7 +54,7 @@ def format_size(tamanho):
     return retorno
 
 
-def get_info(diretorio):
+def get_info(diretorio, type):
     info = os.stat(diretorio)
     ac = get_time(info.st_atime)
     mo = get_time(info.st_mtime)
@@ -66,7 +66,10 @@ def get_info(diretorio):
         tamanho = format_size(info.st_size)
     else:
         tipo = "Pasta"
-        tamanho = format_size(get_size_folder(diretorio))
+        if type == 1:
+            tamanho = format_size(get_size_folder(diretorio))
+        else:
+            tamanho = format_size(info.st_size)
     arquivo = ''
     url = diretorio.split('/')
     for i in url:
@@ -127,58 +130,92 @@ def get_size_folder(diretorio):
         for f in filenames:
             try:
                 fp = os.path.join(dirpath, f)
-                total_size += os.path.getsize(fp)
-            except:
-                pass
+                if os.path.exists(fp):
+                    total_size += os.stat(fp).st_size
+            except Exception as e:
+                print "Nao foi possivel realizar a operacao"
+                print e
     return total_size
 
+
 def colar(caminho):
-    nome = ''
-    if os.path.isfile(caminho):
-        shutil.copy(caminho, get_local_path()+"/")
-    else:
-        lnome = caminho.split("/")
-        for i in lnome:
-            nome = i
-        shutil.copytree(caminho, get_local_path()+"/"+nome)
+    if caminho is None:
+        return 0
+    try:
+        if os.path.isfile(caminho):
+            shutil.copy(caminho, get_local_path()+"/")
+        else:
+            lnome = caminho.split("/")
+            shutil.copytree(caminho, get_local_path()+"/"+lnome[-1])
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
 
+
 def excluir(caminho):
-    if os.path.isfile(caminho):
-        os.remove(caminho)
-    else:
-        shutil.rmtree(caminho)
+    try:
+        if os.path.isfile(caminho):
+            os.remove(caminho)
+        elif os.path.islink(caminho):
+            os.unlink(caminho)
+        else:
+            shutil.rmtree(caminho)
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
+
 
 def alter_uid(caminho, uid):
     try:
         os.chown(caminho, int(uid), -1)
-    except ValueError:
-        pass
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
+
 
 def alter_gid(caminho, gid):
     try:
         os.chown(caminho, -1, int(gid))
-    except ValueError:
-        pass
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
+
 
 def alter_perm(caminho, perms):
     try:
         os.chmod(caminho, int(perms))
-    except:
-        pass
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
+
 
 def create_symlink(origem, nome):
-    os.symlink(origem, nome)
+    try:
+        os.symlink(origem, nome)
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0
 
+
 def create_folder(caminho):
-    os.mkdir(caminho)
+    try:
+        os.mkdir(caminho)
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
+
 
 def create_file(caminho):
-    arquivo = open(caminho, 'a')
-    arquivo.close()
+    try:
+        arquivo = open(caminho, 'a')
+        arquivo.close()
+    except Exception as e:
+        print "Nao foi possivel realizar a operacao"
+        print e
     return 0

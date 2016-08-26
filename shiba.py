@@ -67,7 +67,7 @@ class MainWindow:
         self.button_recortar = gtk.Button("Recortar")
         self.button_excluir = gtk.Button("Excluir")
         self.button_propriedades = gtk.Button("Propriedades")
-        self.button_symlink = gtk.Button("Criar Link")
+        self.button_symlink = gtk.Button("Criar SymLink")
         self.button_novo = gtk.Button("Novo Arquivo")
         self.button_pasta = gtk.Button("Nova Pasta")
         self.button_oculto = gtk.Button("Mostrar Ocultos")
@@ -95,6 +95,8 @@ class MainWindow:
         self.button_excluir.connect("clicked", self.action_delete)
         self.button_propriedades.connect("clicked", self.action_properties)
         self.button_symlink.connect("clicked", self.action_symlink)
+        self.button_novo.connect("clicked", self.action_file)
+        self.button_pasta.connect("clicked", self.action_folder)
 
         self.fixed.put(self.scrolled_window, 190, 80)
         self.fixed.put(self.button_voltar, 15, 15)
@@ -129,18 +131,20 @@ class MainWindow:
         self.path_bar.set_text(local)
         for i in lista:
             if funcoes.existe(local + "/" + i):
-                self.files[i] = funcoes.get_info(local + "/" + i)
+                self.files[i] = funcoes.get_info(local + "/" + i, 0)
         for j, i in self.files.iteritems():
             if oculto and i["nome"][0] == '.':
                 pass
             else:
                 self.list.append([i["nome"], i["tamanho"], i["user_p"] + i["group_p"] + i["other_p"], i["uid"],
                                   i["tipo"]])
+        return 0
 
     def action_up(self, widget):
         self.old_path.append(self.path)
         self.path = funcoes.ir_acima()
         self.update_view(self.oculto)
+        return 0
 
     def action_back(self, widget):
         try:
@@ -149,12 +153,14 @@ class MainWindow:
             self.update_view(self.oculto)
         except ValueError:
             pass
+        return 0
 
     def action_go(self, widget):
         self.old_path.append(self.path)
         self.path = self.path_bar.get_text()
         funcoes.ir_para(self.path)
         self.update_view(self.oculto)
+        return 0
 
     def action_oculto(self, widget):
         if self.oculto:
@@ -175,12 +181,15 @@ class MainWindow:
             selecionado = None
         return selecionado
 
+
     def action_copy(self, widget):
         self.copy_uri = funcoes.get_local_path() + "/" + self.get_selected()
+        return 0
 
     def action_crop(self, widget):
         self.crop = True
         self.copy_uri = funcoes.get_local_path() + "/" + self.get_selected()
+        return 0
 
     def action_paste(self, widget):
         funcoes.colar(self.copy_uri)
@@ -193,11 +202,12 @@ class MainWindow:
     def action_delete(self, widget):
         funcoes.excluir(funcoes.get_local_path() + "/" + self.get_selected())
         self.update_view(self.oculto)
+        return 0
 
     def action_properties(self, widget):
         selecionado = self.get_selected()
         self.open_window = funcoes.get_local_path()+"/"+selecionado
-        info = funcoes.get_info(self.open_window)
+        info = funcoes.get_info(self.open_window, 1)
         if selecionado is None:
             pass
         else:
@@ -271,50 +281,106 @@ class MainWindow:
 
             win.vbox.pack_start(fix)
             win.show_all()
+        return 0
 
     def action_alter_uid(self, widget):
         new_uid = self.cuserid.get_text()
         funcoes.alter_uid(self.open_window, new_uid)
         self.update_view(self.oculto)
+        return 0
 
     def action_alter_gid(self, widget):
         new_gid = self.cgroupid.get_text()
         funcoes.alter_gid(self.open_window, new_gid)
         self.update_view(self.oculto)
+        return 0
 
     def action_alter_perm(self, widget):
         new_perm = '0'
         new_perm += self.cpermissoes.get_text()
         funcoes.alter_perm(self.open_window, new_perm)
+        return 0
 
     def action_symlink(self, widget):
         win = gtk.Dialog()
         win.set_title("Criar Link")
-        win.set_size_request(300, 100)
+        win.set_size_request(400, 150)
         win.set_resizable(False)
         fix = gtk.Fixed()
-        title = gtk.Label("Arquivo/Pasta: ")
+        title = gtk.Label("Origem: ")
+        subtitle = gtk.Label("Nome do symlink:")
         self.symlink_uri = gtk.Entry()
         self.symlink_uri.set_max_length(200)
         self.symlink_uri.set_size_request(150, 30)
+        self.link_name = gtk.Entry()
+        self.link_name.set_size_request(150, 30)
+        self.link_name.set_max_length(200)
         button_criar = gtk.Button("Criar")
-        button_criar.set_size_request(40, 30)
+        button_criar.set_size_request(60, 30)
         button_criar.connect("clicked", self.go_link)
         fix.put(title, 15, 15)
-        fix.put(self.symlink_uri, 100, 15)
-        fix.put(button_criar, 80, 70)
-
+        fix.put(self.symlink_uri, 180, 15)
+        fix.put(self.link_name, 180, 50)
+        fix.put(subtitle, 15, 50)
+        fix.put(button_criar, 170, 100)
         win.vbox.pack_start(fix)
         win.show_all()
+        self.update_view(self.oculto)
+        return 0
 
     def go_link(self, widget):
-        pass
+        dest = funcoes.get_local_path() + "/" + self.link_name.get_text()
+        origem = self.symlink_uri.get_text()
+        funcoes.create_symlink(origem, dest)
+        return 0
 
-    #
-    # def action_folder(self, widget):
-    #
-    # def action_file(self, widget):
+    def action_folder(self, widget):
+        win = gtk.Dialog()
+        win.set_title("Criar pasta")
+        win.set_size_request(400, 80)
+        win.set_resizable(False)
+        fix = gtk.Fixed()
+        title = gtk.Label("Nome: ")
+        self.folder_name = gtk.Entry()
+        self.folder_name.set_size_request(150, 30)
+        self.folder_name.set_max_length(200)
+        button_criar = gtk.Button("Criar")
+        button_criar.set_size_request(60, 30)
+        button_criar.connect("clicked", self.go_folder)
+        fix.put(title, 15, 15)
+        fix.put(self.folder_name, 180, 15)
+        fix.put(button_criar, 170, 50)
+        win.vbox.pack_start(fix)
+        win.show_all()
+        self.update_view(self.oculto)
+        return 0
 
+    def go_folder(self, widget):
+        funcoes.create_folder(funcoes.get_local_path()+"/"+self.folder_name.get_text())
+        return 0
+
+    def action_file(self, widget):
+        win = gtk.Dialog()
+        win.set_title("Criar arquivo")
+        win.set_size_request(400, 80)
+        win.set_resizable(False)
+        fix = gtk.Fixed()
+        title = gtk.Label("Nome: ")
+        self.file_name = gtk.Entry()
+        self.file_name.set_size_request(150, 30)
+        self.file_name.set_max_length(200)
+        button_criar = gtk.Button("Criar")
+        button_criar.set_size_request(60, 30)
+        button_criar.connect("clicked", self.go_file)
+        fix.put(title, 15, 15)
+        fix.put(self.file_name, 180, 15)
+        fix.put(button_criar, 170, 50)
+        win.vbox.pack_start(fix)
+        win.show_all()
+        self.update_view(self.oculto)
+
+    def go_file(self, widget):
+        funcoes.create_file(funcoes.get_local_path()+"/"+self.file_name.get_text())
 
     @staticmethod
     def destroy(self):
