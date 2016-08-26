@@ -3,6 +3,7 @@ import os
 import datetime
 import shutil
 
+
 def get_time(time):
     date = datetime.datetime.fromtimestamp(time)
     d = date.day
@@ -54,7 +55,7 @@ def format_size(tamanho):
     return retorno
 
 
-def get_info(diretorio, type):
+def get_info(diretorio, folder_t):
     info = os.stat(diretorio)
     ac = get_time(info.st_atime)
     mo = get_time(info.st_mtime)
@@ -66,16 +67,13 @@ def get_info(diretorio, type):
         tamanho = format_size(info.st_size)
     else:
         tipo = "Pasta"
-        if type == 1:
+        if folder_t == 1:
             tamanho = format_size(get_size_folder(diretorio))
         else:
             tamanho = format_size(info.st_size)
-    arquivo = ''
-    url = diretorio.split('/')
-    for i in url:
-        arquivo = i
+    arquivo = diretorio.split('/')
     retorno = {
-        "nome": arquivo,
+        "nome": arquivo[-1],
         "uid": info.st_uid,
         "gid": info.st_gid,
         "data_ac": ac[0],
@@ -115,6 +113,8 @@ def get_list(diretorio):
     if os.path.exists(diretorio):
         lista = os.listdir(diretorio)
         return lista
+    elif os.path.isfile(diretorio):
+        return False
     else:
         return -1
 
