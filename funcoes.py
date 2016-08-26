@@ -60,6 +60,7 @@ def get_info(diretorio):
     mo = get_time(info.st_mtime)
     cr = get_time(info.st_ctime)
     permissions = get_permissions(oct(info.st_mode)[-3:])
+    permissions2 = oct(info.st_mode)[-3:]
     if os.path.isfile(diretorio):
         tipo = "Arquivo"
         tamanho = format_size(info.st_size)
@@ -84,7 +85,8 @@ def get_info(diretorio):
         "group_p": permissions[1],
         "other_p": permissions[2],
         "tamanho": tamanho,
-        "tipo": tipo
+        "tipo": tipo,
+        "perm": permissions2
     }
     return retorno
 
@@ -146,4 +148,37 @@ def excluir(caminho):
         os.remove(caminho)
     else:
         shutil.rmtree(caminho)
+    return 0
+
+def alter_uid(caminho, uid):
+    try:
+        os.chown(caminho, int(uid), -1)
+    except ValueError:
+        pass
+    return 0
+
+def alter_gid(caminho, gid):
+    try:
+        os.chown(caminho, -1, int(gid))
+    except ValueError:
+        pass
+    return 0
+
+def alter_perm(caminho, perms):
+    try:
+        os.chmod(caminho, int(perms))
+    except:
+        pass
+    return 0
+
+def create_symlink(origem, nome):
+    os.symlink(origem, nome)
+    return 0
+
+def create_folder(caminho):
+    os.mkdir(caminho)
+
+def create_file(caminho):
+    arquivo = open(caminho, 'a')
+    arquivo.close()
     return 0
