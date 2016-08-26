@@ -94,6 +94,7 @@ class MainWindow:
         self.button_recortar.connect("clicked", self.action_crop)
         self.button_excluir.connect("clicked", self.action_delete)
         self.button_propriedades.connect("clicked", self.action_properties)
+        self.button_symlink.connect("clicked", self.action_symlink)
 
         self.fixed.put(self.scrolled_window, 190, 80)
         self.fixed.put(self.button_voltar, 15, 15)
@@ -285,6 +286,35 @@ class MainWindow:
         new_perm = '0'
         new_perm += self.cpermissoes.get_text()
         funcoes.alter_perm(self.open_window, new_perm)
+
+    def action_symlink(self, widget):
+        win = gtk.Dialog()
+        win.set_title("Criar Link")
+        win.set_size_request(300, 100)
+        win.set_resizable(False)
+        fix = gtk.Fixed()
+        title = gtk.Label("Arquivo/Pasta: ")
+        self.symlink_uri = gtk.Entry()
+        self.symlink_uri.set_max_length(200)
+        self.symlink_uri.set_size_request(150, 30)
+        button_criar = gtk.Button("Criar")
+        button_criar.set_size_request(40, 30)
+        button_criar.connect("clicked", self.go_link)
+        fix.put(title, 15, 15)
+        fix.put(self.symlink_uri, 100, 15)
+        fix.put(button_criar, 80, 70)
+
+        win.vbox.pack_start(fix)
+        win.show_all()
+
+    def go_link(self, widget):
+        pass
+
+    #
+    # def action_folder(self, widget):
+    #
+    # def action_file(self, widget):
+
 
     @staticmethod
     def destroy(self):
