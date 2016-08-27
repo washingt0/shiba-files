@@ -14,8 +14,10 @@ import gtk
 import funcoes
 
 
+# classe principal da GUI
 class MainWindow:
     def __init__(self):
+        # inicializa alguns atributos
         self.open_window = self.cuserid = self.cgroupid = self.cpermissoes = self.sym_win = self.symlink_uri = None
         self.link_name = self.folder_win = self.folder_name = self.file_win = self.file_name = self.copy_uri = None
         self.oculto = True
@@ -24,6 +26,7 @@ class MainWindow:
         self.files = {}
         self.crop = False
 
+        # instancia o dialogo que sera exibido e configura alguns parametros
         self.window = gtk.Dialog()
         self.window.set_title("Shiba Files")
         self.window.set_size_request(800, 600)
@@ -32,21 +35,27 @@ class MainWindow:
 
         self.fixed = gtk.Fixed()
 
+        # instancia uma subjanela com scroll e configura alguns parametros
         self.scrolled_window = gtk.ScrolledWindow()
         self.scrolled_window.set_size_request(600, 500)
         self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
 
+        # instancia a barra de enderecos e configura alguns parametros
         self.path_bar = gtk.Entry()
         self.path_bar.connect("activate", self.action_go)
         self.path_bar.set_size_request(530, 40)
         self.path_bar.set_text(self.path)
         self.fixed.put(self.path_bar, 190, 15)
 
+        # instancia a model que ira compor a TreeView
         self.list = gtk.ListStore(str, str, str, str, str)
         self.update_view(self.oculto)
+
+        # instancia a TreeView
         self.files_treeview = gtk.TreeView()
         self.files_treeview.set_model(self.list)
 
+        # instacia as colunas da TreeView, o renderizador e configura alguns parametros
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Nome", renderer, text=0)
         column.set_sort_column_id(0)
@@ -73,6 +82,7 @@ class MainWindow:
         column.set_fixed_width(80)
         self.files_treeview.append_column(column)
 
+        # instancia os botoes
         self.button_acima = gtk.Button("Acima")
         self.button_voltar = gtk.Button("Voltar")
         self.button_ir = gtk.Button("Ir")
@@ -86,6 +96,7 @@ class MainWindow:
         self.button_pasta = gtk.Button("Nova Pasta")
         self.button_oculto = gtk.Button("Mostrar Ocultos")
 
+        # configura o tamanho dos botoes
         self.button_acima.set_size_request(80, 40)
         self.button_voltar.set_size_request(80, 40)
         self.button_ir.set_size_request(50, 40)
@@ -99,6 +110,7 @@ class MainWindow:
         self.button_pasta.set_size_request(165, 35)
         self.button_oculto.set_size_request(165, 35)
 
+        # configura a acao de cada botao
         self.button_acima.connect("clicked", self.action_up)
         self.button_voltar.connect("clicked", self.action_back)
         self.button_ir.connect("clicked", self.action_go)
@@ -112,6 +124,7 @@ class MainWindow:
         self.button_novo.connect("clicked", self.action_file)
         self.button_pasta.connect("clicked", self.action_folder)
 
+        # inclui os botoes no painel fixo
         self.fixed.put(self.scrolled_window, 190, 80)
         self.fixed.put(self.button_voltar, 15, 15)
         self.fixed.put(self.button_acima, 100, 15)
@@ -126,25 +139,31 @@ class MainWindow:
         self.fixed.put(self.button_pasta, 15, 360)
         self.fixed.put(self.button_oculto, 15, 400)
 
+        # configura acao para quando um registro for ativado
         self.files_treeview.connect('row-activated', self.open_folder)
 
+        # torna a TreeView visivel e adiciona ela na janela com scroll
         self.files_treeview.show()
         self.scrolled_window.add(self.files_treeview)
 
+        # cria uma referencia para o registro selecionado e e configura alguns parametros
         self.selected = self.files_treeview.get_selection()
         self.selected.set_mode(gtk.SELECTION_SINGLE)
         self.selected.select_path(0)
 
+        # torna todos os componentes do dialogo visiveis e conecta a funcao de destruicao
         self.window.vbox.pack_start(self.fixed)
         self.window.show_all()
         self.window.connect("destroy", self.destroy)
 
+    # realiza a mudanca de path a partir da ativacao da coluna
     def open_folder(self, treeview, path, column):
         sel = funcoes.get_local_path() + "/" + self.get_selected()
         self.path_bar.set_text(sel)
         self.action_go(self)
         return 0
 
+    # atualiza a lista que compoe a TreeView
     def update_view(self, oculto):
         self.list.clear()
         self.files.clear()
@@ -162,12 +181,14 @@ class MainWindow:
                                   i["tipo"]])
         return 0
 
+    # acao de subir um nivel
     def action_up(self, widget):
         self.old_path.append(self.path)
         self.path = funcoes.ir_acima()
         self.update_view(self.oculto)
         return 0
 
+    # acao de voltar
     def action_back(self, widget):
         try:
             self.path = self.old_path.pop()
@@ -177,6 +198,7 @@ class MainWindow:
             pass
         return 0
 
+    # acao de alterar o diretorio a partir da barra de enderecos
     def action_go(self, widget):
         self.old_path.append(self.path)
         self.path = self.path_bar.get_text()
@@ -184,6 +206,7 @@ class MainWindow:
         self.update_view(self.oculto)
         return 0
 
+    # exibe/mostra arquivos/pastas ocultas
     def action_oculto(self, widget):
         if self.oculto:
             self.oculto = False
@@ -195,6 +218,7 @@ class MainWindow:
             self.update_view(self.oculto)
         return 0
 
+    # obtem apenas o nome do arquivo/diretorio selecionado
     def get_selected(self):
         try:
             selec = self.selected.get_selected()
@@ -203,15 +227,18 @@ class MainWindow:
             selecionado = None
         return selecionado
 
+    # prepara as variaveis para efetuar a copia de um arquivo/pasta
     def action_copy(self, widget):
         self.copy_uri = funcoes.get_local_path() + "/" + self.get_selected()
         return 0
 
+    # prepara as variaveis para efetuar o movimento de um arquivo/pasta
     def action_crop(self, widget):
         self.crop = True
         self.copy_uri = funcoes.get_local_path() + "/" + self.get_selected()
         return 0
 
+    # cola um arquivo/pasta
     def action_paste(self, widget):
         funcoes.colar(self.copy_uri)
         if self.crop:
@@ -220,11 +247,13 @@ class MainWindow:
         self.update_view(self.oculto)
         return 0
 
+    # exclui um arquivo
     def action_delete(self, widget):
         funcoes.excluir(funcoes.get_local_path() + "/" + self.get_selected())
         self.update_view(self.oculto)
         return 0
 
+    # carrega a janela de visualizacao/edicao de um arquivo/diretorio
     def action_properties(self, widget):
         selecionado = self.get_selected()
         self.open_window = funcoes.get_local_path()+"/"+selecionado
@@ -304,24 +333,28 @@ class MainWindow:
             win.show_all()
         return 0
 
+    # prepara os dados para alterar UID
     def action_alter_uid(self, widget):
         new_uid = self.cuserid.get_text()
         funcoes.alter_uid(self.open_window, new_uid)
         self.update_view(self.oculto)
         return 0
 
+    # prepara os dados para alterar GID
     def action_alter_gid(self, widget):
         new_gid = self.cgroupid.get_text()
         funcoes.alter_gid(self.open_window, new_gid)
         self.update_view(self.oculto)
         return 0
 
+    # prepara os dados para alterar as permissoes
     def action_alter_perm(self, widget):
         new_perm = '0'
         new_perm += self.cpermissoes.get_text()
         funcoes.alter_perm(self.open_window, new_perm)
         return 0
 
+    # carrega a janela para criacao de um symlink
     def action_symlink(self, widget):
         self.sym_win = gtk.Dialog()
         self.sym_win.set_title("Criar Link")
@@ -348,6 +381,7 @@ class MainWindow:
         self.sym_win.show_all()
         return 0
 
+    # prepara os dados para criar um symlink
     def go_link(self, widget):
         dest = funcoes.get_local_path() + "/" + self.link_name.get_text()
         origem = self.symlink_uri.get_text()
@@ -356,6 +390,7 @@ class MainWindow:
         self.update_view(self.oculto)
         return 0
 
+    # carrega a janela para criacao de uma nova pasta
     def action_folder(self, widget):
         self.folder_win = gtk.Dialog()
         self.folder_win.set_title("Criar pasta")
@@ -376,12 +411,14 @@ class MainWindow:
         self.folder_win.show_all()
         return 0
 
+    # prepara os dados para criar uma nova pasta
     def go_folder(self, widget):
         funcoes.create_folder(funcoes.get_local_path()+"/"+self.folder_name.get_text())
         self.folder_win.destroy()
         self.update_view(self.oculto)
         return 0
 
+    # carrega janela para criacao de novo arquivo
     def action_file(self, widget):
         self.file_win = gtk.Dialog()
         self.file_win.set_title("Criar arquivo")
@@ -402,16 +439,19 @@ class MainWindow:
         self.file_win.show_all()
         return 0
 
+    # prepara os dados para a criacao de novo arquivo
     def go_file(self, widget):
         funcoes.create_file(funcoes.get_local_path()+"/"+self.file_name.get_text())
         self.file_win.destroy()
         self.update_view(self.oculto)
         return 0
 
+    # metodo estatico para destruicao do dialogo principal
     @staticmethod
     def destroy(self):
         gtk.main_quit(self)
 
+    # metodo estatico para iniciar o dialogo principal
     @staticmethod
     def main():
         gtk.main()
@@ -420,3 +460,5 @@ class MainWindow:
 if __name__ == "__main__":
     main = MainWindow()
     main.main()
+    print "Rodando"
+    print "Possiveis saidas referentes a acesso negado, serao impressas abaixo."

@@ -13,6 +13,7 @@ import datetime
 import shutil
 
 
+# converte e obtem datas e horarios
 def get_time(time):
     date = datetime.datetime.fromtimestamp(time)
     d = date.day
@@ -26,6 +27,7 @@ def get_time(time):
     return datetime_set
 
 
+# "converte" permissoes de inteiro para representacao rwx
 def get_permissions(modo):
     permissoes = {
         "0": "---",
@@ -43,6 +45,7 @@ def get_permissions(modo):
     return perm
 
 
+# converte e formata o tamanho dos arquivos/pastas
 def format_size(tamanho):
     pb = 1125899906842624.0
     tb = 1099511627776.0
@@ -64,6 +67,7 @@ def format_size(tamanho):
     return retorno
 
 
+# obtem as informacoes referentes a um arquivo/pasta
 def get_info(diretorio, folder_t):
     info = os.stat(diretorio)
     ac = get_time(info.st_atime)
@@ -101,15 +105,18 @@ def get_info(diretorio, folder_t):
     return retorno
 
 
+# obtem o path atual da aplicacao
 def get_local_path():
     return os.getcwd()
 
 
+# sobe um nivel na arvore de diretorios
 def ir_acima():
     os.chdir("..")
     return get_local_path()
 
 
+# altera o diretorio de trabalho da aplicacao
 def ir_para(diretorio):
     if os.path.isfile(diretorio):
         pass
@@ -118,20 +125,21 @@ def ir_para(diretorio):
     return get_local_path()
 
 
+# obtem lista de arquivos/pastas de um determinado diretorio
 def get_list(diretorio):
     if os.path.exists(diretorio):
         lista = os.listdir(diretorio)
         return lista
-    elif os.path.isfile(diretorio):
-        return False
     else:
         return -1
 
 
+# verifica a existencia do path
 def existe(diretorio):
     return os.path.exists(diretorio)
 
 
+# calcula de forma recursiva o tamanho de uma pasta pela soma de seus arquivos
 def get_size_folder(diretorio):
     start_path = diretorio
     total_size = 0
@@ -147,6 +155,7 @@ def get_size_folder(diretorio):
     return total_size
 
 
+# implementa a acao de colagem de um arquivo/pasta
 def colar(caminho):
     if caminho is None:
         return 0
@@ -162,6 +171,7 @@ def colar(caminho):
     return 0
 
 
+# implementa a acao de exclusao de um arquivo/pasta
 def excluir(caminho):
     try:
         if os.path.isfile(caminho):
@@ -176,6 +186,7 @@ def excluir(caminho):
     return 0
 
 
+# altera o UID de um arquivo/pasta
 def alter_uid(caminho, uid):
     try:
         os.chown(caminho, int(uid), -1)
@@ -185,6 +196,7 @@ def alter_uid(caminho, uid):
     return 0
 
 
+# altera o GID de um arquivo/pasta
 def alter_gid(caminho, gid):
     try:
         os.chown(caminho, -1, int(gid))
@@ -194,6 +206,7 @@ def alter_gid(caminho, gid):
     return 0
 
 
+# altera as permissoes de um arquivo/pasta
 def alter_perm(caminho, perms):
     try:
         os.chmod(caminho, int(perms))
@@ -203,6 +216,7 @@ def alter_perm(caminho, perms):
     return 0
 
 
+# cria um link simbolico
 def create_symlink(origem, nome):
     try:
         os.symlink(origem, nome)
@@ -212,6 +226,7 @@ def create_symlink(origem, nome):
     return 0
 
 
+# cria uma nova pasta
 def create_folder(caminho):
     try:
         os.mkdir(caminho)
@@ -220,6 +235,7 @@ def create_folder(caminho):
         print e
 
 
+# cria um novo arquivo
 def create_file(caminho):
     try:
         arquivo = open(caminho, 'a')
