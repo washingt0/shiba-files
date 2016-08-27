@@ -1,4 +1,15 @@
 #! /usr/bin/python
+
+# Instituto Federal de Ciencia Educacao e Tecnologia do Ceara - Campus Crato
+# Curso: Bacharelado em Sistemas de Informacao
+# Disciplina: Sistemas Operacionais
+# Professor Orientador: Guilherme Esmeraldo
+# Equipe: Hyago Sayomar
+#         Marcelo Bezerra
+#         Washington Santos
+# Resumo: Gerenciador de arquivos para GNU/Linux, escrito em python 2.7 + PyGTK
+# Requerimentos: Python 2.7+, PyGTK2
+
 import gtk
 import funcoes
 
