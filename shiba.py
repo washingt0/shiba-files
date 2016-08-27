@@ -5,12 +5,14 @@ import funcoes
 
 class MainWindow:
     def __init__(self):
+        self.open_window = self.cuserid = self.cgroupid = self.cpermissoes = self.sym_win = self.symlink_uri = None
+        self.link_name = self.folder_win = self.folder_name = self.file_win = self.file_name = self.copy_uri = None
         self.oculto = True
         self.path = funcoes.get_local_path()
         self.old_path = []
         self.files = {}
-        self.copy_uri = None
         self.crop = False
+
         self.window = gtk.Dialog()
         self.window.set_title("Shiba Files")
         self.window.set_size_request(800, 600)
@@ -189,7 +191,6 @@ class MainWindow:
         except ValueError:
             selecionado = None
         return selecionado
-
 
     def action_copy(self, widget):
         self.copy_uri = funcoes.get_local_path() + "/" + self.get_selected()
