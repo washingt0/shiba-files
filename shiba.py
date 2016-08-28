@@ -34,6 +34,9 @@ class MainWindow:
         self.window.set_position(gtk.WIN_POS_CENTER)
 
         self.fixed = gtk.Fixed()
+        self.shiba = gtk.Image()
+        self.shiba.set_from_file("./pics/shiba.jpg")
+        self.fixed.put(self.shiba, 15, 440)
 
         # instancia uma subjanela com scroll e configura alguns parametros
         self.scrolled_window = gtk.ScrolledWindow()
