@@ -194,9 +194,12 @@ class MainWindow:
     # acao de voltar
     def action_back(self, widget):
         try:
-            self.path = self.old_path.pop()
-            funcoes.ir_para(self.path)
-            self.update_view(self.oculto)
+            if len(self.old_path) == 0:
+                pass
+            else:
+                self.path = self.old_path.pop()
+                funcoes.ir_para(self.path)
+                self.update_view(self.oculto)
         except ValueError:
             pass
         return 0
@@ -462,6 +465,7 @@ class MainWindow:
 
 if __name__ == "__main__":
     main = MainWindow()
-    main.main()
     print "Rodando"
     print "Possiveis saidas referentes a acesso negado, serao impressas abaixo."
+    main.main()
+    
